@@ -1,0 +1,34 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <Company>Robert McCabe</Company>
+    <IsPackable>true</IsPackable>
+    <PackageId>Cloud.Core.Storage.AzureTableStorage</PackageId>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <PackageTags>Cloud.Core.Storage.AzureTableStorage Azure .net-Core Core Storage TableStorage</PackageTags>
+    <PackageReleaseNotes />
+    <Description>Azure specific implementation of ITableStorage using Azure Table Storage.</Description>
+    <Copyright>Robert McCabe</Copyright>
+    <Version>3.1</Version>
+	<PackageIconUrl>https://cloud1core.blob.core.windows.net/icons/CC.png</PackageIconUrl>
+    <Authors>Robert McCabe</Authors>
+    <ProjectGuid>{04f53a89-14ab-4347-a86e-72136bcdba91}</ProjectGuid>
+	<RepositoryUrl>https://github.com/rmccabe24/Cloud.Core.Storage.AzureTableStorage</RepositoryUrl>
+	<RepositoryType>Private</RepositoryType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Extensions\PropertyInfoArrayExtensions.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Cloud.Core" Version="3.1.3514.150" />
+    <PackageReference Include="Microsoft.Azure.Cosmos.Table" Version="1.0.7" />
+    <PackageReference Include="Microsoft.Azure.Management.Fluent" Version="1.33.0" />
+    <PackageReference Include="Microsoft.Azure.Services.AppAuthentication" Version="1.4.0" />
+    <PackageReference Include="Microsoft.IdentityModel.Clients.ActiveDirectory" Version="5.2.7" />
+    <PackageReference Include="System.Reactive.Core" Version="4.4.1" />
+  </ItemGroup>
+
+</Project>
