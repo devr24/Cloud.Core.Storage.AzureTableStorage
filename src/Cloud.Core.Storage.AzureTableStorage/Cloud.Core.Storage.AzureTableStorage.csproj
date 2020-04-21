@@ -9,13 +9,13 @@
     <PackageTags>Cloud.Core.Storage.AzureTableStorage Azure .net-Core Core Storage TableStorage</PackageTags>
     <PackageReleaseNotes />
     <Description>Azure specific implementation of ITableStorage using Azure Table Storage.</Description>
-    <Copyright>Robert McCabe</Copyright>
+    <Copyright>Aylesbury Solutions Ltd</Copyright>
     <Version>3.1</Version>
-	<PackageIconUrl>https://cloud1core.blob.core.windows.net/icons/CC.png</PackageIconUrl>
+    <PackageIconUrl>https://cloud1core.blob.core.windows.net/icons/CC.png</PackageIconUrl>
     <Authors>Robert McCabe</Authors>
     <ProjectGuid>{04f53a89-14ab-4347-a86e-72136bcdba91}</ProjectGuid>
-	<RepositoryUrl>https://github.com/rmccabe24/Cloud.Core.Storage.AzureTableStorage</RepositoryUrl>
-	<RepositoryType>Private</RepositoryType>
+    <RepositoryUrl>https://github.com/rmccabe24/Cloud.Core.Storage.AzureTableStorage</RepositoryUrl>
+    <RepositoryType>Private</RepositoryType>
   </PropertyGroup>
 
   <ItemGroup>
