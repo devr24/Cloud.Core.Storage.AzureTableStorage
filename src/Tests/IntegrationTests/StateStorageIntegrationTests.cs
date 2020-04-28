@@ -39,9 +39,10 @@ namespace Cloud.Core.Storage.AzureTableStorage.Tests.IntegrationTests
             // Act - Store in state.
             await _stateStorage.SetState("myobj", testStorageObj);
             var retrieved = await _stateStorage.GetState<TestStorage>("myobj");
+            var stateStored = await _stateStorage.IsStateStored("myobj");
 
             // Assert
-            Assert.True(await _stateStorage.IsStateStored("myobj"));
+            Assert.True(stateStored);
             retrieved.Name.Should().Be(testStorageObj.Name);
         }
     }

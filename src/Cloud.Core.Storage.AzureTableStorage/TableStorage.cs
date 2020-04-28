@@ -91,7 +91,7 @@
             }
             catch (Exception e)
             {
-                Logger?.LogError(e, $"Error {e.Message} occurred retrieving, tablename: {tableName}, key: {key}");
+                Logger?.LogError(e, $"Error {e.Message} occurred retrieving, table name: {tableName}, key: {key}");
                 throw;
             }
         }

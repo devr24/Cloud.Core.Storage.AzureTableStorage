@@ -7,7 +7,7 @@
         <Configuration>
 		  <Exclude>../**/TableStorageBase</Exclude>
           <Include>[*.Storage.AzureTableStorage]*</Include>
-          <ExcludeByAttribute>ExcludeFromCodeCoverage</ExcludeByAttribute>
+          <ExcludeByAttribute>Obsolete,GeneratedCodeAttribute,CompilerGeneratedAttribute,ExcludeFromCodeCoverage</ExcludeByAttribute>
           <ExcludeByFile>../**/Program.cs,../**/Startup.cs</ExcludeByFile>
         </Configuration>
       </DataCollector>

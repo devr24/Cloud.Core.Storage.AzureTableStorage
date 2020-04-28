@@ -471,6 +471,7 @@ namespace Cloud.Core.Storage.AzureTableStorage.Tests.IntegrationTests
             public bool TestBool { get; set; } = true;
             public List<string> TestArray { get; set; } = new List<string> { "test" };
             public object TestObject { get; set; } = "test";
+            public string ETag { get; set; }
         }
     }
 }

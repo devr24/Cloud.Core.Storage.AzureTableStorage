@@ -5,6 +5,7 @@ using Cloud.Core.Storage.AzureTableStorage.Config;
 using Cloud.Core.Storage.AzureTableStorage.Converters;
 using Cloud.Core.Testing;
 using FluentAssertions;
+using Microsoft.Azure.Cosmos.Table;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
@@ -246,6 +247,40 @@ namespace Cloud.Core.Storage.AzureTableStorage.Tests.IntegrationTests
             table.RowKey.Should().Be("testRow");
             table.PartitionKey.Should().Be("testPartition");
             table.ETag.Should().BeNull();
+        }
+
+        /// <summary>Ensure argument exception when default dynamic table entity is sent for conversion.</summary>
+        [Fact]
+        public void Test_TableEntityToObjectConverter_ConvertFailure()
+        {
+            // Arrange
+            var converter = new TableEntityToObjectConverter<SampleEntity>();
+
+            // Acts
+            converter.SetKey("A", "B");
+            converter.SetProperties(new Dictionary<string, EntityProperty>()
+            {
+                { "OtherField", new EntityProperty("otherfield") },
+                { "OtherField2", new EntityProperty(5) }
+            });
+            converter.SetTimestamp(default);
+            converter.SetETag("etag");
+            var entity = converter.GetObject();
+
+            // Assert
+            entity.ETag.Should().Be("etag");
+            entity.Key.Should().Be("A/B");
+            entity.OtherField.Should().Be("otherfield");
+            entity.OtherField2.Should().Be(5);
+        }
+
+        private class SampleEntity : ITableItem
+        {
+            public string Key { get; set; }
+            public string Name { get; set; }
+            public string OtherField { get; set; }
+            public int? OtherField2 { get; set; }
+            public string ETag { get; set; }
         }
     }
 
