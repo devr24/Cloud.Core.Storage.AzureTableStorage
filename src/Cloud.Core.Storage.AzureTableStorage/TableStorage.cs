@@ -211,6 +211,7 @@
         /// <returns>Task.</returns>
         /// <exception cref="ConflictException">conflict while trying to upsert entity</exception>
         /// <exception cref="InvalidOperationException">Upsert data is badly formed and resulted in a 400 Bad Request response from TableStorage</exception>
+        [ExcludeFromCodeCoverage]
         public async Task UpsertEntity<T>(string tableName, T data) where T : class, ITableItem
         {
             try
@@ -232,7 +233,7 @@
                 }
             }
             catch (StorageException st)
-            when (st.RequestInformation.HttpStatusCode == 400)
+                when (st.RequestInformation.HttpStatusCode == 400)
             {
                 Logger?.LogError($"Bad Request to table storage ({tableName}) - check modal properties are all set: {JsonConvert.SerializeObject(data)}");
                 throw new InvalidOperationException("Upsert data is badly formed and resulted in a 400 Bad Request response from TableStorage");
@@ -253,6 +254,7 @@
         /// <param name="batchSize">Size of the batch to update at any one time (defaults to 10).</param>
         /// <returns>Task.</returns>
         /// <exception cref="InvalidOperationException">Upsert data is badly formed and resulted in a 400 Bad Request response from TableStorage</exception>
+        [ExcludeFromCodeCoverage]
         public async Task UpsertEntities<T>(string tableName, List<T> data, int batchSize = 100) where T : class, ITableItem
         {
             try
@@ -296,7 +298,7 @@
                 }
             }
             catch (StorageException st)
-            when (st.RequestInformation.HttpStatusCode == 400)
+                when (st.RequestInformation.HttpStatusCode == 400)
             {
                 Logger?.LogError($"Bad Request to table storage ({tableName}) - check modal properties are all set: {JsonConvert.SerializeObject(data)}");
                 throw new InvalidOperationException("Upsert data is badly formed and resulted in a 400 Bad Request response from TableStorage");
