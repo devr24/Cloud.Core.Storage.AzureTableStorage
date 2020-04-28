@@ -47,6 +47,8 @@ namespace Cloud.Core.Storage.AzureTableStorage.Tests.IntegrationTests
             _auditLogger.WriteLog("eventName3", "message3", "source2", 0, 2).GetAwaiter().GetResult();
             _auditLogger.WriteLog("eventName4", "message4", "useridentifier1").GetAwaiter().GetResult();
             _auditLogger.WriteLog("eventName5", "message5", "userIdentifier2", "source3", 3).GetAwaiter().GetResult();
+            _auditLogger.WriteLog("eventName6", "message6", "useridentifier3", 5).GetAwaiter().GetResult();
+
             Thread.Sleep(1000);
 
             var count = await _tableStorage.CountItemsQuery(_tableStorage.AuditTableName, $"Timestamp ge datetime'{DateTime.Now.AddDays(-1):yyyy-MM-ddThh:mm:ss}'");

@@ -173,6 +173,7 @@ namespace Cloud.Core.Storage.AzureTableStorage.Tests.IntegrationTests
             Assert.Throws<ValidateException>(() => msiConfig.ThrowIfInvalid());
             msiConfig.SubscriptionId = "test";
             AssertExtensions.DoesNotThrow(() => msiConfig.ThrowIfInvalid());
+            msiConfig.ToString().Should().NotBeNullOrEmpty();
         }
 
         /// <summary>Ensure validation is carried out as expected for ConnectionConfig.</summary>
@@ -184,6 +185,7 @@ namespace Cloud.Core.Storage.AzureTableStorage.Tests.IntegrationTests
             Assert.Throws<ValidateException>(() => connectionConfig.ThrowIfInvalid());
             connectionConfig.ConnectionString = "test";
             AssertExtensions.DoesNotThrow(() => connectionConfig.ThrowIfInvalid());
+            connectionConfig.ToString().Should().NotBeNullOrEmpty();
         }
 
         /// <summary>Ensure validation is carried out as expected for ServicePrincipleConfig.</summary>
@@ -203,6 +205,7 @@ namespace Cloud.Core.Storage.AzureTableStorage.Tests.IntegrationTests
             Assert.Throws<ValidateException>(() => spConfig.ThrowIfInvalid());
             spConfig.SubscriptionId = "test";
             AssertExtensions.DoesNotThrow(() => spConfig.ThrowIfInvalid());
+            spConfig.ToString().Should().NotBeNullOrEmpty();
         }
 
         /// <summary>Ensure the table entity converter is convering objects as expected.</summary>
