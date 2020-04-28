@@ -18,7 +18,7 @@ namespace Cloud.Core.Storage.AzureTableStorage.Tests.IntegrationTests
             var readConfig = new ConfigurationBuilder().AddJsonFile("appSettings.json").Build();
             var config = new ServicePrincipleConfig
             {
-                InstanceName = readConfig.GetValue<string>("StorageInstanceName"),
+                InstanceName = readConfig.GetValue<string>("InstanceName"),
                 TenantId = readConfig.GetValue<string>("TenantId"),
                 SubscriptionId = readConfig.GetValue<string>("SubscriptionId"),
                 AppId = readConfig.GetValue<string>("AppId"),
@@ -29,17 +29,19 @@ namespace Cloud.Core.Storage.AzureTableStorage.Tests.IntegrationTests
             _stateStorage = _tableStorage;
         }
 
+        /// <summary>Verify an object is stored in state as expected.</summary>
         [Fact]
         public async Task Test_StateStorage_SetAndGetState()
         {
+            // Arrange - object that should be stored.
             var testStorageObj = new TestStorage { Name = "Tester" };
 
-            await _stateStorage.SetState<TestStorage>("myobj", testStorageObj);
-
-            Assert.True(await _stateStorage.IsStateStored("myobj"));
-
+            // Act - Store in state.
+            await _stateStorage.SetState("myobj", testStorageObj);
             var retrieved = await _stateStorage.GetState<TestStorage>("myobj");
 
+            // Assert
+            Assert.True(await _stateStorage.IsStateStored("myobj"));
             retrieved.Name.Should().Be(testStorageObj.Name);
         }
     }

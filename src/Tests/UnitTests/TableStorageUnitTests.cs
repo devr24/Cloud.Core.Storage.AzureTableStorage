@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Cloud.Core.Exceptions;
 using Cloud.Core.Storage.AzureTableStorage.Config;
 using Cloud.Core.Storage.AzureTableStorage.Converters;
 using Cloud.Core.Testing;
@@ -16,8 +17,10 @@ namespace Cloud.Core.Storage.AzureTableStorage.Tests.IntegrationTests
         [Fact]
         public void Test_ServiceCollection_NamedInstances()
         {
+            // Arrange
             IServiceCollection serviceCollection = new ServiceCollection();
 
+            // Act/Assert
             serviceCollection.ContainsService(typeof(ITableStorage)).Should().BeFalse();
             serviceCollection.ContainsService(typeof(IStateStorage)).Should().BeFalse();
             serviceCollection.ContainsService(typeof(IAuditLogger)).Should().BeFalse();
@@ -48,8 +51,10 @@ namespace Cloud.Core.Storage.AzureTableStorage.Tests.IntegrationTests
         [Fact]
         public void Test_ServiceCollection_AddStateStorageSingleton()
         {
+            // Arrange
             IServiceCollection serviceCollection = new ServiceCollection();
 
+            // Act/Assert
             serviceCollection.AddStateStorageSingleton(new MsiConfig { InstanceName = "test", SubscriptionId = "test", TenantId = "test" });
             serviceCollection.ContainsService(typeof(IStateStorage)).Should().BeTrue();
             serviceCollection.Clear();
@@ -66,28 +71,36 @@ namespace Cloud.Core.Storage.AzureTableStorage.Tests.IntegrationTests
             serviceCollection.ContainsService(typeof(IStateStorage)).Should().BeTrue();
         }
 
+        /// <summary>Ensure config instance name is setup as expected.</summary>
         [Fact]
         public void Test_ConnectionConfig_InstanceName()
         {
-            var config = new ConnectionConfig();
-            config.InstanceName.Should().BeNull();
+            // Arrange
+            var config1 = new ConnectionConfig();
+            var config2 = new ConnectionConfig();
+            var config3 = new ConnectionConfig();
+            var config4 = new ConnectionConfig();
 
-            config.ConnectionString = "AB";
-            config.InstanceName.Should().Be(null);
+            // Act
+            config2.ConnectionString = "AB";
+            config3.ConnectionString = "A;B";
+            config4.ConnectionString = "A;AccountName=B;C";
 
-            config.ConnectionString = "A;B";
-            config.InstanceName.Should().Be(null);
-
-            config.ConnectionString = "A;AccountName=B;C";
-            config.InstanceName.Should().Be("B");
+            // Assert
+            config1.InstanceName.Should().BeNull();
+            config2.InstanceName.Should().Be(null);
+            config3.InstanceName.Should().Be(null);
+            config4.InstanceName.Should().Be("B");
         }
 
         /// <summary>Check the ITableStorage is added to the service collection when using the new extension methods.</summary>
         [Fact]
         public void Test_ServiceCollection_AddTableStorageSingleton()
         {
+            // Arrange
             IServiceCollection serviceCollection = new ServiceCollection();
 
+            // Act/Assert
             serviceCollection.AddTableStorageSingleton("test", "test", "test");
             serviceCollection.ContainsService(typeof(NamedInstanceFactory<ITableStorage>)).Should().BeTrue();
             serviceCollection.ContainsService(typeof(ITableStorage)).Should().BeTrue();
@@ -125,8 +138,10 @@ namespace Cloud.Core.Storage.AzureTableStorage.Tests.IntegrationTests
         [Fact]
         public void Test_ServiceCollection_AddAuditLogSingleton()
         {
+            // Arrange
             IServiceCollection serviceCollection = new ServiceCollection();
 
+            // Act/Assert
             serviceCollection.AddAuditLogSingleton(new MsiConfig { InstanceName = "test", SubscriptionId = "test", TenantId = "test" });
             serviceCollection.ContainsService(typeof(IAuditLogger)).Should().BeTrue();
             serviceCollection.Clear();
@@ -143,44 +158,58 @@ namespace Cloud.Core.Storage.AzureTableStorage.Tests.IntegrationTests
             serviceCollection.ContainsService(typeof(IAuditLogger)).Should().BeTrue();
         }
 
+        /// <summary>Ensure validation is carried out as expected for MsiConfig.</summary>
         [Fact]
-        public void Test_Configuration_Validation()
+        public void Test_MsiConfig_Validation()
         {
+            // Arrange
             var msiConfig = new MsiConfig();
-            var connectionConfig = new ConnectionConfig();
-            var spConfig = new ServicePrincipleConfig();
 
             // Check the msi config validation.
-            Assert.Throws<ArgumentException>(() => msiConfig.Validate());
+            Assert.Throws<ValidateException>(() => msiConfig.ThrowIfInvalid());
             msiConfig.InstanceName = "test";
-            Assert.Throws<ArgumentException>(() => msiConfig.Validate());
+            Assert.Throws<ValidateException>(() => msiConfig.ThrowIfInvalid());
             msiConfig.TenantId = "test";
-            Assert.Throws<ArgumentException>(() => msiConfig.Validate());
+            Assert.Throws<ValidateException>(() => msiConfig.ThrowIfInvalid());
             msiConfig.SubscriptionId = "test";
-            AssertExtensions.DoesNotThrow(() => msiConfig.Validate());
-
-            // Check connection string config validation.
-            Assert.Throws<ArgumentException>(() => connectionConfig.Validate());
-            connectionConfig.ConnectionString = "test";
-            AssertExtensions.DoesNotThrow(() => connectionConfig.Validate());
-
-            // Check the service Principle config validation.
-            Assert.Throws<ArgumentException>(() => spConfig.Validate());
-            spConfig.InstanceName = "test";
-            Assert.Throws<ArgumentException>(() => spConfig.Validate());
-            spConfig.AppId = "test";
-            Assert.Throws<ArgumentException>(() => spConfig.Validate());
-            spConfig.AppSecret = "test";
-            Assert.Throws<ArgumentException>(() => spConfig.Validate());
-            spConfig.TenantId = "test";
-            Assert.Throws<ArgumentException>(() => spConfig.Validate());
-            spConfig.SubscriptionId = "test";
-            AssertExtensions.DoesNotThrow(() => spConfig.Validate());
+            AssertExtensions.DoesNotThrow(() => msiConfig.ThrowIfInvalid());
         }
 
+        /// <summary>Ensure validation is carried out as expected for ConnectionConfig.</summary>
+        [Fact]
+        public void Test_ConnectionConfig_Validation()
+        {
+            var connectionConfig = new ConnectionConfig();
+            // Check connection string config validation.
+            Assert.Throws<ValidateException>(() => connectionConfig.ThrowIfInvalid());
+            connectionConfig.ConnectionString = "test";
+            AssertExtensions.DoesNotThrow(() => connectionConfig.ThrowIfInvalid());
+        }
+
+        /// <summary>Ensure validation is carried out as expected for ServicePrincipleConfig.</summary>
+        [Fact]
+        public void Test_ServicePrincipleConfig_Validation()
+        {
+            var spConfig = new ServicePrincipleConfig();
+            // Check the service Principle config validation.
+            Assert.Throws<ValidateException>(() => spConfig.ThrowIfInvalid());
+            spConfig.InstanceName = "test";
+            Assert.Throws<ValidateException>(() => spConfig.ThrowIfInvalid());
+            spConfig.AppId = "test";
+            Assert.Throws<ValidateException>(() => spConfig.ThrowIfInvalid());
+            spConfig.AppSecret = "test";
+            Assert.Throws<ValidateException>(() => spConfig.ThrowIfInvalid());
+            spConfig.TenantId = "test";
+            Assert.Throws<ValidateException>(() => spConfig.ThrowIfInvalid());
+            spConfig.SubscriptionId = "test";
+            AssertExtensions.DoesNotThrow(() => spConfig.ThrowIfInvalid());
+        }
+
+        /// <summary>Ensure the table entity converter is convering objects as expected.</summary>
         [Fact]
         public void Test_TableEntityConverter_ConvertObject()
         {
+            // Arrange
             var auditLog = new FakeAuditLog
             {
                 Key = "testPartition/testRow",
@@ -199,20 +228,21 @@ namespace Cloud.Core.Storage.AzureTableStorage.Tests.IntegrationTests
                 TestOffset = new DateTimeOffset()
             };
 
+            // Act
             var objectConversion = new ObjectToTableEntityConverter(auditLog);
             var props = objectConversion.GetEntityProperties();
+            var table = objectConversion.GetTableEntity();
+
+            // Assert
             props.Count.Should().Be(13);
             props.ContainsKey("AppName").Should().BeTrue();
             props.ContainsKey("Message").Should().BeTrue();
             props.ContainsKey("UserIdentifier").Should().BeTrue();
             props.ContainsKey("CurrentValue").Should().BeTrue();
             props.ContainsKey("PreviousValue").Should().BeTrue();
-
-            var table = objectConversion.GetTableEntity();
             table.RowKey.Should().Be("testRow");
             table.PartitionKey.Should().Be("testPartition");
             table.ETag.Should().BeNull();
-
         }
     }
 

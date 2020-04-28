@@ -29,7 +29,9 @@
         {
             // If the state storage table does not exist - create it.  This isn't expensive as state storage isn't a regularly called method.
             if (!CheckForTable(StateStorageTableName))
+            {
                 await CreateTable(StateStorageTableName);
+            }
 
             var state = await GetEntity<StateData<T>>(StateStorageTableName, GetFullKeyName(key));
             return state.Data;
@@ -44,7 +46,9 @@
         {
             // If the state storage table does not exist - create it.  This isn't expensive as state storage isn't a regularly called method.
             if (!CheckForTable(StateStorageTableName))
+            {
                 await CreateTable(StateStorageTableName);
+            }
 
             return await Exists(StateStorageTableName, GetFullKeyName(key));
         }
@@ -58,7 +62,9 @@
         {
             // If the state storage table does not exist - create it.  This isn't expensive as state storage isn't a regularly called method.
             if (!CheckForTable(StateStorageTableName))
+            {
                 await CreateTable(StateStorageTableName);
+            }
 
             await DeleteEntity(StateStorageTableName, GetFullKeyName(key));
         }
@@ -74,8 +80,9 @@
         {
             // If the state storage table does not exist - create it.  This isn't expensive as state storage isn't a regularly called method.
             if (!CheckForTable(StateStorageTableName))
+            {
                 await CreateTable(StateStorageTableName);
-
+            }
 
             if (storeObj == null)
             {

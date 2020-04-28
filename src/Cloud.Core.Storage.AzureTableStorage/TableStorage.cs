@@ -45,9 +45,7 @@
         /// <param name="logger">The logger to log information to.</param>
         /// <inheritdoc />
         public TableStorage([NotNull]ServicePrincipleConfig config, [MaybeNull] ILogger logger = null)
-            : base(config, logger)
-        {
-        }
+            : base(config, logger) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TableStorage" /> class with a Connection String.
@@ -84,7 +82,10 @@
                 var operation = TableOperation.Retrieve(parts[0], parts[1]);
                 var result = await table.ExecuteAsync(operation);
                 if (result.Result == null)
+                {
                     return null;
+                }
+
                 // Return the converted generic object.
                 return TableEntityConvert.FromTableEntity<T>(result.Result);
             }
@@ -117,7 +118,7 @@
             }
             catch (Exception e)
             {
-                Logger?.LogError(e, $"Error {e.Message} occurred checking exists, tablename: {tableName}, key: {key}");
+                Logger?.LogError(e, $"Error {e.Message} occurred checking exists, table name: {tableName}, key: {key}");
                 throw;
             }
         }
@@ -149,7 +150,7 @@
             }
             catch (Exception e)
             {
-                Logger?.LogError(e, $"Error {e.Message} occurred deleting, tablename: {tableName}, key: {key}");
+                Logger?.LogError(e, $"Error {e.Message} occurred deleting, table name: {tableName}, key: {key}");
                 throw;
             }
         }
@@ -196,7 +197,7 @@
             }
             catch (Exception e)
             {
-                Logger?.LogError(e, $"Error {e.Message} occurred deleting multiple, tablename: {tableName}, keys: {string.Concat(",", keys)}");
+                Logger?.LogError(e, $"Error {e.Message} occurred deleting multiple, table name: {tableName}, keys: {string.Concat(",", keys)}");
                 throw;
             }
         }
@@ -238,7 +239,7 @@
             }
             catch (Exception e)
             {
-                Logger?.LogError(e, $"Error: {e.Message} occurred, tablename: {tableName} with generic data");
+                Logger?.LogError(e, $"Error: {e.Message} occurred, table name: {tableName} with generic data");
                 throw;
             }
         }
@@ -302,7 +303,7 @@
             }
             catch (Exception e)
             {
-                Logger?.LogError(e, $"Error {e.Message} occurred upserting multiple, tablename: {tableName} with generic data");
+                Logger?.LogError(e, $"Error {e.Message} occurred upserting multiple, table name: {tableName} with generic data");
                 throw;
             }
         }
@@ -322,10 +323,14 @@
             var tblQuery = new TableQuery<DynamicTableEntity>();
 
             if (!selectColumns.IsNullOrDefault())
+            {
                 tblQuery = tblQuery.Select(selectColumns);
+            }
 
             if (!filterQuery.IsNullOrDefault())
+            {
                 tblQuery = tblQuery.Where(filterQuery);
+            }
 
             return ListEntitiesObservable<T>(tableName, tblQuery, token).ToEnumerable();
         }
@@ -360,7 +365,9 @@
             var tblQuery = new TableQuery<DynamicTableEntity>();
 
             if (!selectColumns.IsNullOrDefault())
+            {
                 tblQuery = tblQuery.Select(selectColumns);
+            }
 
             return ListEntitiesObservable<T>(tableName, tblQuery, token).ToEnumerable();
         }
@@ -379,7 +386,9 @@
             var tblQuery = new TableQuery<DynamicTableEntity>();
 
             if (!filterQuery.IsNullOrDefault())
+            {
                 tblQuery = tblQuery.Where(filterQuery);
+            }
 
             return ListEntitiesObservable<T>(tableName, tblQuery, token).ToEnumerable();
         }
@@ -399,10 +408,14 @@
             var tblQuery = new TableQuery<DynamicTableEntity>();
 
             if (!selectColumns.IsNullOrDefault())
+            {
                 tblQuery = tblQuery.Select(selectColumns);
+            }
 
             if (!filterQuery.IsNullOrDefault())
+            {
                 tblQuery = tblQuery.Where(filterQuery);
+            }
 
             return ListEntitiesObservable<T>(tableName, tblQuery, token);
         }
@@ -490,7 +503,9 @@
             var tblQuery = new TableQuery<DynamicTableEntity>();
 
             if (!filterQuery.IsNullOrDefault())
+            {
                 tblQuery = tblQuery.Where(filterQuery);
+            }
 
             return ListEntitiesObservable<T>(tableName, tblQuery, token);
         }
@@ -509,7 +524,9 @@
             var tblQuery = new TableQuery<DynamicTableEntity>();
 
             if (!selectColumns.IsNullOrDefault())
+            {
                 tblQuery = tblQuery.Select(selectColumns);
+            }
 
             return ListEntitiesObservable<T>(tableName, tblQuery, token);
         }
@@ -550,7 +567,7 @@
                 await table.DeleteIfExistsAsync();
             }
             catch (StorageException st)
-            when (st.Message == "Conflict")
+                when (st.Message == "Conflict")
             {
                 // Do nothing on conflict.
             }
@@ -569,7 +586,7 @@
                 await table.CreateIfNotExistsAsync();
             }
             catch (StorageException st)
-            when (st.Message == "Conflict")
+                when (st.Message == "Conflict")
             {
                 // Do nothing on conflict.
             }
@@ -602,7 +619,9 @@
 
             // Add row key if its been passed.
             if (parts.Length == 2)
+            {
                 tblQuery = tblQuery.Where(TableQuery.GenerateFilterCondition("RowKey", QueryComparisons.Equal, parts[1]));
+            }
 
             return await Counter(tableName, tblQuery, null, token);
         }
@@ -709,7 +728,9 @@
             var parts = key.Split('/');
 
             if (parts.Length != 2)
+            {
                 throw new ArgumentException("Key must be defined as 'partitionKey/rowKey'");
+            }
 
             return parts;
         }
@@ -780,7 +801,9 @@
             get
             {
                 if (_cloudClient == null || _expiryTime <= DateTime.UtcNow)
+                {
                     InitializeClient();
+                }
 
                 return _cloudClient;
             }
@@ -796,12 +819,16 @@
         private void InitializeClient()
         {
             if (ConnectionString.IsNullOrEmpty())
+            {
                 ConnectionString = BuildStorageConnection().GetAwaiter().GetResult();
+            }
 
             CloudStorageAccount.TryParse(ConnectionString, out var storageAccount);
 
             if (storageAccount == null)
+            {
                 throw new InvalidOperationException("Cannot find storage account using connection string");
+            }
 
             // Create the CloudTableClient that represents the Table storage endpoint for the storage account.
             _cloudClient = storageAccount.CreateCloudTableClient();
@@ -816,7 +843,7 @@
         protected TableStorageBase(ConnectionConfig config, ILogger logger = null)
         {
             // Ensure all mandatory fields are set.
-            config.Validate();
+            config.ThrowIfInvalid();
 
             Logger = logger;
             ConnectionString = config.ConnectionString;
@@ -831,11 +858,12 @@
         protected TableStorageBase(MsiConfig config, ILogger logger = null)
         {
             // Ensure all mandatory fields are set.
-            config.Validate();
+            config.ThrowIfInvalid();
 
             Logger = logger;
             MsiConfig = config;
             Name = config.InstanceName;
+
             _instanceName = config.InstanceName;
             _subscriptionId = config.SubscriptionId;
         }
@@ -848,11 +876,12 @@
         protected TableStorageBase(ServicePrincipleConfig config, ILogger logger = null)
         {
             // Ensure all mandatory fields are set.
-            config.Validate();
+            config.ThrowIfInvalid();
 
             Logger = logger;
             ServicePrincipleConfig = config;
             Name = config.InstanceName;
+
             _instanceName = config.InstanceName;
             _subscriptionId = config.SubscriptionId;
         }
@@ -868,7 +897,9 @@
             {
                 // If we already have the connection string for this instance - don't go get it again.
                 if (ConnectionStrings.TryGetValue(_instanceName, out var connStr))
+                {
                     return connStr;
+                }
 
                 const string azureManagementAuthority = "https://management.azure.com/";
                 const string windowsLoginAuthority = "https://login.windows.net/";
@@ -881,8 +912,9 @@
                     var provider = new AzureServiceTokenProvider();
                     token = provider.GetAccessTokenAsync(azureManagementAuthority, MsiConfig.TenantId).GetAwaiter().GetResult();
 
-                    if (string.IsNullOrEmpty(token))
+                    if (string.IsNullOrEmpty(token)) {
                         throw new InvalidOperationException("Could not authenticate using Managed Service Identity, ensure the application is running in a secure context");
+                    }
 
                     _expiryTime = DateTime.Now.AddDays(1);
                 }
@@ -895,8 +927,9 @@
                     var credential = new ClientCredential(ServicePrincipleConfig.AppId, ServicePrincipleConfig.AppSecret);
                     var tokenResult = context.AcquireTokenAsync(azureManagementAuthority, credential).GetAwaiter().GetResult();
 
-                    if (tokenResult == null || tokenResult.AccessToken == null)
+                    if (tokenResult == null || tokenResult.AccessToken == null) {
                         throw new InvalidOperationException($"Could not authenticate to {windowsLoginAuthority}{ServicePrincipleConfig.TenantId} using supplied AppId: {ServicePrincipleConfig.AppId}");
+                    }
 
                     _expiryTime = tokenResult.ExpiresOn;
                     token = tokenResult.AccessToken;

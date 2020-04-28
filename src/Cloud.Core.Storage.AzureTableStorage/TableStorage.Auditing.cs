@@ -20,8 +20,8 @@
     /// <seealso cref="IAuditLogger" />
     public partial class TableStorage : IAuditLogger
     {
-        private static string _appName = AppDomain.CurrentDomain.FriendlyName;
-        private static string _cleanAppName = _appName.Replace("AI.DL.", string.Empty);
+        private static readonly string _appName = AppDomain.CurrentDomain.FriendlyName;
+        private static readonly string _cleanAppName = _appName.Replace("AI.DL.", string.Empty);
         internal readonly string AuditTableName = $"Audit{_cleanAppName.ReplaceAll(new[] { ' ', ';', '.', '-' }, string.Empty) }";
 
         /// <summary>

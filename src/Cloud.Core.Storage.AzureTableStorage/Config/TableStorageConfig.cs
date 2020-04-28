@@ -2,11 +2,13 @@
 {
     using System;
     using System.Linq;
+    using Validation;
+    using System.ComponentModel.DataAnnotations;
 
     /// <summary>
     /// Msi Configuration for Azure Table storage.
     /// </summary>
-    public class MsiConfig
+    public class MsiConfig : AttributeValidator
     {
         /// <summary>
         /// Gets or sets the name of the table storage instance.
@@ -14,14 +16,16 @@
         /// <value>
         /// The name of the table storage instance.
         /// </value>
+        [Required]
         public string InstanceName { get; set; }
-        
+
         /// <summary>
         /// Gets or sets the tenant identifier.
         /// </summary>
         /// <value>
         /// The tenant identifier.
         /// </value>
+        [Required]
         public string TenantId { get; set; }
 
         /// <summary>
@@ -30,24 +34,12 @@
         /// <value>
         /// The subscription identifier.
         /// </value>
+        [Required]
         public string SubscriptionId { get; set; }
-        
-        /// <summary>Ensure mandatory properties are set.</summary>
-        public void Validate()
-        {
-            if (InstanceName.IsNullOrEmpty())
-                throw new ArgumentException("Table storage InstanceName must be set");
-
-            if (TenantId.IsNullOrEmpty())
-                throw new ArgumentException("TenantId must be set");
-
-            if (SubscriptionId.IsNullOrEmpty())
-                throw new ArgumentException("SubscriptionId must be set");
-        }
     }
 
     /// <summary>Connection string config.</summary>
-    public class ConnectionConfig
+    public class ConnectionConfig : AttributeValidator
     {
         /// <summary>
         /// Gets or sets the connection string for connecting to storage.
@@ -55,6 +47,7 @@
         /// <value>
         /// Storage connection string.
         /// </value>
+        [Required]
         public string ConnectionString { get; set; }
 
         /// <summary>
@@ -74,24 +67,17 @@
                 if (parts.Length <= 1)
                     return null;
 
-                // Account name is used as the indentifier.
-                return parts.Where(p => p.StartsWith(replaceStr))
-                    .FirstOrDefault()?.Replace(replaceStr, string.Empty);
+                // Account name is used as the identifier.
+                return parts
+                    .FirstOrDefault(p => p.StartsWith(replaceStr))?.Replace(replaceStr, string.Empty);
             }
-        }
-
-        /// <summary>Ensure mandatory properties are set.</summary>
-        public void Validate()
-        {
-            if (ConnectionString.IsNullOrEmpty())
-                throw new ArgumentException("ConnectionString must be set");
         }
     }
 
     /// <summary>
     /// Service Principle Configuration for Azure Table storage.
     /// </summary>
-    public class ServicePrincipleConfig
+    public class ServicePrincipleConfig : AttributeValidator
     {
         /// <summary>
         /// Gets or sets the application identifier.
@@ -99,6 +85,7 @@
         /// <value>
         /// The application identifier.
         /// </value>
+        [Required]
         public string AppId { get; set; }
 
         /// <summary>
@@ -107,6 +94,7 @@
         /// <value>
         /// The application secret string.
         /// </value>
+        [Required]
         public string AppSecret { get; set; }
 
         /// <summary>
@@ -115,6 +103,7 @@
         /// <value>
         /// The tenant identifier.
         /// </value>
+        [Required]
         public string TenantId { get; set; }
 
         /// <summary>
@@ -123,6 +112,7 @@
         /// <value>
         /// The subscription identifier.
         /// </value>
+        [Required]
         public string SubscriptionId { get; set; }
 
         /// <summary>
@@ -131,6 +121,7 @@
         /// <value>
         /// The name of the storage instance.
         /// </value>
+        [Required]
         public string InstanceName { get; set; } 
         
         /// <summary>
@@ -142,25 +133,6 @@
         public override string ToString()
         {
             return $"AppId: {AppId}, TenantId: {TenantId}, Table storage InstanceName: {InstanceName}";
-        }
-
-        /// <summary>Ensure mandatory properties are set.</summary>
-        public void Validate()
-        {
-            if (InstanceName.IsNullOrEmpty())
-                throw new ArgumentException("Table storage InstanceName must be set");
-
-            if (AppId.IsNullOrEmpty())
-                throw new ArgumentException("AppId must be set");
-
-            if (AppSecret.IsNullOrEmpty())
-                throw new ArgumentException("AppSecret must be set");
-
-            if (TenantId.IsNullOrEmpty())
-                throw new ArgumentException("TenantId must be set");
-
-            if (SubscriptionId.IsNullOrEmpty())
-                throw new ArgumentException("SubscriptionId must be set");
         }
     }
 }

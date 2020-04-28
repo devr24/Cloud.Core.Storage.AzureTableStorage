@@ -22,7 +22,7 @@ namespace Cloud.Core.Storage.AzureTableStorage.Tests.IntegrationTests
             var readConfig = new ConfigurationBuilder().AddJsonFile("appSettings.json").Build();
             var config = new ServicePrincipleConfig
             {
-                InstanceName = readConfig.GetValue<string>("StorageInstanceName"),
+                InstanceName = readConfig.GetValue<string>("InstanceName"),
                 TenantId = readConfig.GetValue<string>("TenantId"),
                 SubscriptionId = readConfig.GetValue<string>("SubscriptionId"),
                 AppId = readConfig.GetValue<string>("AppId"),
@@ -33,31 +33,36 @@ namespace Cloud.Core.Storage.AzureTableStorage.Tests.IntegrationTests
             _tableStorageClient.CreateTable(TestTableName).GetAwaiter().GetResult();
         }
 
+        /// <summary>Ensure table is created and deleted as expected.</summary>
         [Fact]
         public void Test_TableStorage_CreateAndDeleteTable()
         {
+            // Act/Assert
             _tableStorageClient.CreateTable("Test").GetAwaiter().GetResult();
             _tableStorageClient.CheckTableExists("Test").GetAwaiter().GetResult().Should().BeTrue();
             _tableStorageClient.DeleteTable("Test").GetAwaiter().GetResult();
+            _tableStorageClient.CheckTableExists("Test").GetAwaiter().GetResult().Should().BeFalse();
         }
 
+        /// <summary>Ensure upserting a single object creates as expected.</summary>
         [Fact]
         public async Task Test_TableStorage_UpsertSingle()
         {
+            // Arrange
             var key = "partition1/key1";
             var entity = new SampleEntity() { Key = key, Name = "name1", OtherField = "other1" };
-            await _tableStorageClient.UpsertEntity(TestTableName, entity);
 
-            // Act - ensure there's an object to check for.
+            // Act 
+            await _tableStorageClient.UpsertEntity(TestTableName, entity);
             var exists = await _tableStorageClient.Exists(TestTableName, key);
+            var tables = (await _tableStorageClient.ListTableNames()).ToList();
 
             // Assert
             exists.Should().Be(true);
-
-            var tables = (await _tableStorageClient.ListTableNames()).ToList();
             tables.Count().Should().BeGreaterThan(0);
         }
 
+        /// <summary>Ensure upserting multiple objects, create as expected.</summary>
         [Fact]
         public async Task Test_TableStorage_UpsertMultiple()
         {
@@ -65,13 +70,12 @@ namespace Cloud.Core.Storage.AzureTableStorage.Tests.IntegrationTests
             var key1 = "partition1/key1";
             var key2 = "partition1/key2";
 
+            // Act - ensure there's an object to check for.
             await _tableStorageClient.UpsertEntities(TestTableName, new List<SampleEntity>
             {
                 new SampleEntity() { Key = key1, Name = "name1", OtherField = "other1" },
                 new SampleEntity() { Key = key2, Name = "name2", OtherField = "other2" }
             });
-
-            // Act - ensure there's an object to check for.
             var exists1 = await _tableStorageClient.Exists(TestTableName, key1);
             var exists2 = await _tableStorageClient.Exists(TestTableName, key2);
             
@@ -80,6 +84,7 @@ namespace Cloud.Core.Storage.AzureTableStorage.Tests.IntegrationTests
             exists2.Should().Be(true);
         }
 
+        /// <summary>Ensure retrieving a single entity works as expected.</summary>
         [Fact]
         public async Task Test_TableStorage_RetrieveSingle()
         {
@@ -98,68 +103,87 @@ namespace Cloud.Core.Storage.AzureTableStorage.Tests.IntegrationTests
             result.OtherField.Should().Be(entity.OtherField);
         }
 
+        /// <summary>Ensure the count items call, with callback, returns the expected results.</summary>
         [Fact]
         public async Task Test_TableStorage_CountItemsWithCallback()
         {
+            // Arrange
             var key = "partition1/key1";
             var entity = new SampleEntity() { Key = key, Name = "name1", OtherField = "other1" };
+            
+            // Act
             await _tableStorageClient.UpsertEntity(TestTableName, entity);
 
             var calls = 0;
             var count = await _tableStorageClient.CountItems(TestTableName, (i) => {
                 calls++;
             });
+
+            // Assert
             count.Should().BeGreaterThan(0);
             calls.Should().BeGreaterThan(0);
         }
 
+        /// <summary>Ensure the count items call returns the expected results.</summary>
         [Fact]
         public async Task Test_TableStorage_CountItems()
         {
+            // Arrange
             var key = "partition1/key1";
             var entity = new SampleEntity() { Key = key, Name = "name1", OtherField = "other1" };
-            await _tableStorageClient.UpsertEntity(TestTableName, entity);
 
+            // Act
+            await _tableStorageClient.UpsertEntity(TestTableName, entity);
             var count = await _tableStorageClient.CountItems(TestTableName);
+
+            // Assert
             count.Should().BeGreaterThan(0);
         }
 
+        /// <summary>Ensure the count items using a key returns the expected results.</summary>
         [Fact]
         public async Task Test_TableStorage_CountItemsUsingKey()
         {
+            // Arrange
             var key1 = "partition1/key12345";
             var entity1 = new SampleEntity() { Key = key1, Name = "name1", OtherField = "other1" };
-            await _tableStorageClient.UpsertEntity(TestTableName, entity1);
-
             var key2 = "partition1/key2";
             var entity2 = new SampleEntity() { Key = key2, Name = "name2", OtherField = "other2" };
-            await _tableStorageClient.UpsertEntity(TestTableName, entity2);
-
             var key3 = "partition2/key2";
             var entity3 = new SampleEntity() { Key = key3, Name = "name3", OtherField = "other3" };
+
+            // Act
+            await _tableStorageClient.UpsertEntity(TestTableName, entity1);
+            await _tableStorageClient.UpsertEntity(TestTableName, entity2);
             await _tableStorageClient.UpsertEntity(TestTableName, entity3);
 
             var countMatchingKey1 = await _tableStorageClient.CountItems(TestTableName, key1);
-            countMatchingKey1.Should().Be(1);
-
             var countTableEntries = await _tableStorageClient.CountItems(TestTableName);
-            countTableEntries.Should().BeGreaterThan(1);
-
             var countPartitioned = await _tableStorageClient.CountItems(TestTableName, "partition1");
+
+            // Assert
+            countMatchingKey1.Should().Be(1);
+            countTableEntries.Should().BeGreaterThan(1);
             countPartitioned.Should().BeGreaterThan(countMatchingKey1).And.BeLessThan(countTableEntries);
         }
 
+        /// <summary>Ensure the count items with a query, returns the expected results.</summary>
         [Fact]
         public async Task Test_TableStorage_CountItemsUsingQuery()
         {
+            // Arrange
             var key = "partition1/key12345";
             var entity = new SampleEntity() { Key = key, Name = "name", OtherField = "other" };
-            await _tableStorageClient.UpsertEntity(TestTableName, entity);
 
+            // Act
+            await _tableStorageClient.UpsertEntity(TestTableName, entity);
             var count = await _tableStorageClient.CountItemsQuery(TestTableName, "PartitionKey eq 'partition1' and RowKey eq 'key12345'");
+
+            // Assert
             count.Should().Be(1);
         }
 
+        /// <summary>Ensure listing entities with specific columns, returns the upserted items.</summary>
         [Fact]
         public async Task Test_TableStorage_RetrieveMultiple_EnumerableWithCols()
         {
@@ -180,6 +204,7 @@ namespace Cloud.Core.Storage.AzureTableStorage.Tests.IntegrationTests
             items.First().Name.Should().NotBeNullOrEmpty();
         }
 
+        /// <summary>Ensure listing entities with a filter returns upserted items.</summary>
         [Fact]
         public async Task Test_TableStorage_RetrieveMultiple_EnumerableFiltered()
         {
@@ -199,6 +224,7 @@ namespace Cloud.Core.Storage.AzureTableStorage.Tests.IntegrationTests
             items.Count.Should().BeGreaterOrEqualTo(2);
         }
 
+        /// <summary>Ensure listing entities returns the upserted items.</summary>
         [Fact]
         public async Task Test_TableStorage_RetrieveMultiple_Enumerable()
         {
@@ -218,6 +244,7 @@ namespace Cloud.Core.Storage.AzureTableStorage.Tests.IntegrationTests
             items.Count.Should().BeGreaterOrEqualTo(2);
         }
 
+        /// <summary>Ensure retrieving items as an observable with a filter, returns as expected.</summary>
         [Fact]
         public async Task Test_TableStorage_RetrieveObservable_Filtered()
         {
@@ -250,10 +277,10 @@ namespace Cloud.Core.Storage.AzureTableStorage.Tests.IntegrationTests
             count.Should().BeGreaterThan(0);
         }
 
+        /// <summary>Ensure retrieving items as an observable by specifying the columns, returns as expected.</summary>
         [Fact]
         public async Task Test_TableStorage_RetrieveObservable_SelectCols()
         {
-
             // Arrange - create test entity.
             var key1 = "partition1/key1";
             var key2 = "partition1/key2";
@@ -285,10 +312,10 @@ namespace Cloud.Core.Storage.AzureTableStorage.Tests.IntegrationTests
             count.Should().BeGreaterThan(0);
         }
 
+        /// <summary>Ensure retrieving items as an observable by specifying the columns and filtering, returns as expected.</summary>
         [Fact]
         public async Task Test_TableStorage_RetrieveObservable_SelectFilteredWithCols()
         {
-
             // Arrange - create test entity.
             var key1 = "partition1/key1";
             var key2 = "partition1/key2";
@@ -321,6 +348,7 @@ namespace Cloud.Core.Storage.AzureTableStorage.Tests.IntegrationTests
             count.Should().BeGreaterThan(0);
         }
 
+        /// <summary>Ensure deleting a single record works as expected.</summary>
         [Fact]
         public async Task Test_TableStorage_DeleteSingle()
         {
@@ -339,6 +367,7 @@ namespace Cloud.Core.Storage.AzureTableStorage.Tests.IntegrationTests
             doesntExist.Should().Be(false);
         }
 
+        /// <summary>Ensure deleting multiple records works as expected.</summary>
         [Fact]
         public async Task Test_TableStorage_DeleteMultiple()
         {
@@ -368,6 +397,7 @@ namespace Cloud.Core.Storage.AzureTableStorage.Tests.IntegrationTests
             doesntExist2.Should().Be(false);
         }
 
+        /// <summary>Verify check exists returns the expected result.</summary>
         [Fact]
         public async Task Test_TableStorage_CheckExists()
         {
