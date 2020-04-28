@@ -33,7 +33,7 @@ var tableConfig = new ConnectionConfig
     };
 
 // Table client.
-var tablestorage = new TableStorage(blobConfig);	
+var tablestorage = new TableStorage(tableConfig);	
 ```
 Note: Instance name not required to be specified anywhere in configuration here as it is taken from the connection string itself.
 
@@ -51,7 +51,7 @@ var tableConfig = new ServicePrincipleConfig
     };
 
 // Table client.
-var tablestorage = new TableStorage(blobConfig);	
+var tablestorage = new TableStorage(tableConfig);	
 ```
 
 
@@ -67,7 +67,7 @@ var tableConfig = new MsiConfig
     };
 
 // Table client.
-var tablestorage = new TableStorage(blobConfig);	
+var tablestorage = new TableStorage(tableConfig);	
 ```
 
 All that's required is the instance name to connect to.  Authentication runs under the context the application is running.
