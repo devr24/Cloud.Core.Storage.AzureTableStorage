@@ -8,7 +8,7 @@
     /// <summary>
     /// Class IServiceCollectionExtensions.
     /// </summary>
-    public static class IServiceCollectionExtensions
+    public static class ServiceCollectionExtensions
     {
         #region Table Storage
 
