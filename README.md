@@ -15,7 +15,7 @@ Azure specific implementation of table storage interface.  Uses the ITableStorag
 
 ## **Initialisation and Authentication Usage**
 
-There are three ways you can instantiate the Blob Storage Client.  Each way dictates the security mechanism the client uses to connect.  The three mechanisms are:
+There are three ways you can instantiate the Table Storage Client.  Each way dictates the security mechanism the client uses to connect.  The three mechanisms are:
 
 1. Connection String
 2. Service Principle
@@ -54,10 +54,6 @@ var tableConfig = new ServicePrincipleConfig
 var tablestorage = new TableStorage(blobConfig);	
 ```
 
-Usually the AppId, AppSecret (both of which are setup when creating a new service principle within Azure) and TenantId are specified in 
-Configuration (environment variables/AppSetting.json file/key value pair files [for Kubernetes secret store] or command line arguments).
-
-SubscriptionId can be accessed through the secret store (this should not be stored in config for security reasons).
 
 #### 3. Management Service Idenity (MSI) 
 This authentication also works for Managed User Identity.  Create an instance of the Table Storage client with MSI authentication as follows:
