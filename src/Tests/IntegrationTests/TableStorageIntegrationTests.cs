@@ -4,8 +4,10 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Cloud.Core.Storage.AzureTableStorage.Config;
+using Cloud.Core.Storage.AzureTableStorage.Converters;
 using Cloud.Core.Testing;
 using FluentAssertions;
+using Microsoft.Azure.Cosmos.Table;
 using Microsoft.Extensions.Configuration;
 using Xunit;
 
@@ -101,6 +103,39 @@ namespace Cloud.Core.Storage.AzureTableStorage.Tests.IntegrationTests
             result.Key.Should().Be(entity.Key);
             result.Name.Should().Be(entity.Name);
             result.OtherField.Should().Be(entity.OtherField);
+        }
+
+        [Fact]
+        public void Test_ObjectToTableEntityConverter_BadKey()
+        {
+            // Arrange
+            var key = "partition1/key1/badkey";
+            var entity = new SampleEntity() { Key = key, Name = "name1", OtherField = "other1" };
+
+            // Act/Assert
+            Assert.Throws<ArgumentException>(() => new ObjectToTableEntityConverter(entity));
+        }
+
+        /// <summary>Ensure exception is thrown when an incorrectly formatted key is used.</summary>
+        [Fact]
+        public void Test_TableStorage_BadlyFormattedKey()
+        {
+            // Arrange - create test entity.
+            var key = "partition1/key1/badkey";
+
+            // Act/Assert.
+            Assert.Throws<ArgumentException>(() => _tableStorageClient.GetEntity<SampleEntity>(TestTableName, key).GetAwaiter().GetResult());
+        }
+
+        /// <summary>Ensure argument exception when default dynamic table entity is sent for conversion.</summary>
+        [Fact]
+        public void Test_TableEntityConvert_ConvertFailure()
+        {
+            // Arrange
+            object tableEntity = default(DynamicTableEntity);
+
+            // Act/Assert
+            Assert.Throws<ArgumentException>(() => TableEntityConvert.FromTableEntity<SampleEntity>(tableEntity));
         }
 
         /// <summary>Ensure the count items call, with callback, returns the expected results.</summary>

@@ -567,7 +567,12 @@
                 await table.DeleteIfExistsAsync();
             }
             catch (StorageException st)
-                when (st.Message == "Conflict")
+                when (st.Message.ToLowerInvariant().Contains("not implemented"))
+            {
+                throw new NotImplementedException("Featured not implemented - check you are using a fully featured storage account", st);
+            }
+            catch (StorageException st)
+                when (st.Message.ToLowerInvariant().Contains("Conflict"))
             {
                 // Do nothing on conflict.
             }
@@ -586,7 +591,12 @@
                 await table.CreateIfNotExistsAsync();
             }
             catch (StorageException st)
-                when (st.Message == "Conflict")
+                when (st.Message.ToLowerInvariant().Contains("not implemented"))
+            {
+                throw new NotImplementedException("Featured not implemented - check you are using a fully featured storage account", st);
+            }
+            catch (StorageException st)
+                when (st.Message.ToLowerInvariant().Contains("Conflict"))
             {
                 // Do nothing on conflict.
             }

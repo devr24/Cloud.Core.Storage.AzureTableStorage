@@ -48,6 +48,7 @@ namespace Cloud.Core.Storage.AzureTableStorage.Tests.IntegrationTests
             _auditLogger.WriteLog("eventName4", "message4", "useridentifier1").GetAwaiter().GetResult();
             _auditLogger.WriteLog("eventName5", "message5", "userIdentifier2", "source3", 3).GetAwaiter().GetResult();
             _auditLogger.WriteLog("eventName6", "message6", "useridentifier3", 5).GetAwaiter().GetResult();
+            _auditLogger.WriteLog("eventName6", "message7", "useridentifier4", 5, 10).GetAwaiter().GetResult();
 
             Thread.Sleep(1000);
 
