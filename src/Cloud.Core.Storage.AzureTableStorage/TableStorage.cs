@@ -751,7 +751,7 @@
     /// <summary>
     /// Base class for Azure specific implementation of cloud table storage.
     /// </summary>
-    [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
+    [ExcludeFromCodeCoverage]
     public abstract class TableStorageBase
     {
         /// <summary>
