@@ -1,7 +1,6 @@
 ﻿namespace Microsoft.Extensions.DependencyInjection
 {
     using System;
-    using System.Linq;
     using Cloud.Core;
     using Cloud.Core.Storage.AzureTableStorage.Config;
 
@@ -35,7 +34,7 @@
                 instance.Name = key;
 
             services.AddSingleton<ITableStorage>(instance);
-            AddFactoryIfNotAdded(services);
+            services.AddFactoryIfNotAdded<ITableStorage>();
             return services;
         }
 
@@ -56,7 +55,7 @@
                 TenantId = tenantId,
                 SubscriptionId = subscriptionId
             });
-            AddFactoryIfNotAdded(services);
+            services.AddFactoryIfNotAdded<ITableStorage>();
             return services;
         }
 
@@ -69,7 +68,7 @@
         public static IServiceCollection AddTableStorageSingleton(this IServiceCollection services, MsiConfig config)
         {
             services.AddSingleton<ITableStorage>(new Cloud.Core.Storage.AzureTableStorage.TableStorage(config));
-            AddFactoryIfNotAdded(services);
+            services.AddFactoryIfNotAdded<ITableStorage>();
             return services;
         }
 
@@ -82,7 +81,7 @@
         public static IServiceCollection AddTableStorageSingleton(this IServiceCollection services, ServicePrincipleConfig config)
         {
             services.AddSingleton<ITableStorage>(new Cloud.Core.Storage.AzureTableStorage.TableStorage(config));
-            AddFactoryIfNotAdded(services);
+            services.AddFactoryIfNotAdded<ITableStorage>();
             return services;
         }
 
@@ -95,7 +94,7 @@
         public static IServiceCollection AddTableStorageSingleton(this IServiceCollection services, ConnectionConfig config)
         {
             services.AddSingleton<ITableStorage>(new Cloud.Core.Storage.AzureTableStorage.TableStorage(config));
-            AddFactoryIfNotAdded(services);
+            services.AddFactoryIfNotAdded<ITableStorage>();
             return services;
         }
 
@@ -119,10 +118,11 @@
                 InstanceName = instanceName,
                 TenantId = tenantId,
                 SubscriptionId = subscriptionId
-            });
-            instance.Name = $"{instanceName}-AuditLog";
+            })
+            {
+                Name = $"{instanceName}-AuditLog"
+            };
             services.AddSingleton<IAuditLogger>(instance);
-            AddFactoryIfNotAdded(services);
             return services;
         }
 
@@ -134,10 +134,11 @@
         /// <returns>IServiceCollection.</returns>
         public static IServiceCollection AddAuditLogSingleton(this IServiceCollection services, MsiConfig config)
         {
-            var instance = new Cloud.Core.Storage.AzureTableStorage.TableStorage(config);
-            instance.Name = $"{config.InstanceName}-AuditLog";
+            var instance = new Cloud.Core.Storage.AzureTableStorage.TableStorage(config)
+            {
+                Name = $"{config.InstanceName}-AuditLog"
+            };
             services.AddSingleton<IAuditLogger>(instance);
-            AddFactoryIfNotAdded(services);
             return services;
         }
 
@@ -149,10 +150,11 @@
         /// <returns>IServiceCollection.</returns>
         public static IServiceCollection AddAuditLogSingleton(this IServiceCollection services, ServicePrincipleConfig config)
         {
-            var instance = new Cloud.Core.Storage.AzureTableStorage.TableStorage(config);
-            instance.Name = $"{config.InstanceName}-AuditLog";
+            var instance = new Cloud.Core.Storage.AzureTableStorage.TableStorage(config)
+            {
+                Name = $"{config.InstanceName}-AuditLog"
+            };
             services.AddSingleton<IAuditLogger>(instance);
-            AddFactoryIfNotAdded(services);
             return services;
         }
         
@@ -164,10 +166,11 @@
         /// <returns>IServiceCollection.</returns>
         public static IServiceCollection AddAuditLogSingleton(this IServiceCollection services, ConnectionConfig config)
         {
-            var instance = new Cloud.Core.Storage.AzureTableStorage.TableStorage(config);
-            instance.Name = $"{config.InstanceName}-AuditLog";
+            var instance = new Cloud.Core.Storage.AzureTableStorage.TableStorage(config)
+            {
+                Name = $"{config.InstanceName}-AuditLog"
+            };
             services.AddSingleton<IAuditLogger>(instance);
-            AddFactoryIfNotAdded(services);
             return services;
         }
 
@@ -191,10 +194,11 @@
                 InstanceName = instanceName,
                 TenantId = tenantId,
                 SubscriptionId = subscriptionId
-            });
-            instance.Name = $"{instanceName}-StateStorage";
+            })
+            {
+                Name = $"{instanceName}-StateStorage"
+            };
             services.AddSingleton<IStateStorage>(instance);
-            AddFactoryIfNotAdded(services);
             return services;
         }
 
@@ -206,10 +210,11 @@
         /// <returns>IServiceCollection.</returns>
         public static IServiceCollection AddStateStorageSingleton(this IServiceCollection services, MsiConfig config)
         {
-            var instance = new Cloud.Core.Storage.AzureTableStorage.TableStorage(config);
-            instance.Name = $"{config.InstanceName}-StateStorage";
+            var instance = new Cloud.Core.Storage.AzureTableStorage.TableStorage(config)
+            {
+                Name = $"{config.InstanceName}-StateStorage"
+            };
             services.AddSingleton<IStateStorage>(instance);
-            AddFactoryIfNotAdded(services);
             return services;
         }
 
@@ -221,10 +226,11 @@
         /// <returns>IServiceCollection.</returns>
         public static IServiceCollection AddStateStorageSingleton(this IServiceCollection services, ServicePrincipleConfig config)
         {
-            var instance = new Cloud.Core.Storage.AzureTableStorage.TableStorage(config);
-            instance.Name = $"{config.InstanceName}-StateStorage";
+            var instance = new Cloud.Core.Storage.AzureTableStorage.TableStorage(config)
+            {
+                Name = $"{config.InstanceName}-StateStorage"
+            };
             services.AddSingleton<IStateStorage>(instance);
-            AddFactoryIfNotAdded(services);
             return services;
         }
 
@@ -236,36 +242,13 @@
         /// <returns>IServiceCollection.</returns>
         public static IServiceCollection AddStateStorageSingleton(this IServiceCollection services, ConnectionConfig config)
         {
-            var instance = new Cloud.Core.Storage.AzureTableStorage.TableStorage(config);
-            instance.Name = $"{config.InstanceName}-StateStorage";
+            var instance = new Cloud.Core.Storage.AzureTableStorage.TableStorage(config)
+            {
+                Name = $"{config.InstanceName}-StateStorage"
+            };
             services.AddSingleton<IStateStorage>(instance);
-            AddFactoryIfNotAdded(services);
             return services;
         }
         #endregion
-
-        /// <summary>
-        /// Add the generic service factory from Cloud.Core for the ITableStorage type.  This allows multiple named instances of the same instance.
-        /// </summary>
-        /// <param name="services">Service collection to extend.</param>
-        private static void AddFactoryIfNotAdded(IServiceCollection services)
-        {
-            if (!services.ContainsService(typeof(NamedInstanceFactory<ITableStorage>)))
-            {
-                // Service Factory doesn't exist, so we add it to ensure it's always available.
-                services.AddSingleton<NamedInstanceFactory<ITableStorage>>();
-            }
-        }
-
-        /// <summary>
-        /// Search through the service collection for a particular object type.
-        /// </summary>
-        /// <param name="services">IServiceCollection to check.</param>
-        /// <param name="objectTypeToFind">Type of object to find.</param>
-        /// <returns>Boolean true if service exists and false if not.</returns>
-        public static bool ContainsService(this IServiceCollection services, Type objectTypeToFind)
-        {
-            return services.Any(x => x.ServiceType == objectTypeToFind);
-        }
     }
 }
